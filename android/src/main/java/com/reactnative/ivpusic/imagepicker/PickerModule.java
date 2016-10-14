@@ -69,6 +69,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private int width = 200;
     private int height = 200;
     private Boolean tmpImage;
+    private boolean freeStyleCropping = false;
     private final ReactApplicationContext mReactContext;
     private Uri mCameraCaptureURI;
 
@@ -98,6 +99,9 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
+        freeStyleCropping = options.hasKey("freeStyleCropping") ? options.getBoolean("freeStyleCropping") : freeStyleCropping;
+
+        if (freeStyleCropping == true) cropping = true; // Free style cropping implies cropping
     }
 
     private void deleteRecursive(File fileOrDirectory) {
@@ -432,10 +436,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     public void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setFreeStyleCropEnabled(freeStyleCropping);
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(), UUID.randomUUID().toString() + ".jpg")))
                 .withMaxResultSize(width, height)
-                .withAspectRatio(width, height)
                 .withOptions(options)
                 .start(activity);
     }
